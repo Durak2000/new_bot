@@ -3,7 +3,7 @@ import os
 import sqlite3
 from loguru import logger
 from aiogram import Bot, Dispatcher, types
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import CommandStart
 from dotenv import find_dotenv, load_dotenv
 
 
@@ -12,15 +12,15 @@ load_dotenv(find_dotenv())
 dp = Dispatcher()
 
 
-def add_user(user_id, username):
+def add_user(name, user_id):
     conn = sqlite3.connect('hacker.db')
     cursor = conn.cursor()
     try:
-        cursor.execute("INSERT INTO users (user_id, username) VALUES (?, ?)", (user_id, username))
+        cursor.execute("INSERT INTO hacker (name, user_id) VALUES (?, ?)", (name, user_id))
         conn.commit()
-        print(f'Пользователь {username} ({user_id}) добавлен в базу данных.')
+        logger.info(f'Пользователь {name} ({user_id}) добавлен в базу данных.')
     except sqlite3.IntegrityError as e:
-        print(e)
+        logger.info(e)
     finally:
         conn.close()
 
@@ -29,21 +29,21 @@ def add_user(user_id, username):
 async def start_cmd(message: types.Message):
     await message.answer('Здорово корова!')
     logger.info(f'Пользователь {(message.from_user.full_name, message.from_user.id)}, запустил бота')
-    username = message.from_user.username
+    name = message.from_user.username
     user_id = message.from_user.id
 
-    add_user(user_id, username)
+    add_user(name, user_id)
 
 
-@dp.message(Command("show"))
-async def show_info(message: types.Message):
-    conn = sqlite3.connect('hacker.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM hacker")
-    rows = cursor.fetchall()
-    for row in rows:
-        logger.info(row)
-        await message.answer(f"{row}")
+# @dp.message(Command("show"))
+# async def show_info(message: types.Message):
+#     conn = sqlite3.connect('hacker.db')
+#     cursor = conn.cursor()
+#     cursor.execute("SELECT * FROM hacker")
+#     rows = cursor.fetchall()
+#     for row in rows:
+#         logger.info(row)
+#         await message.answer(f"{row}")
 
 
 @dp.message()
