@@ -29,7 +29,7 @@ def add_user(name, user_id):
 async def start_cmd(message: types.Message):
     await message.answer('Здорово корова!')
     logger.info(f'Пользователь {(message.from_user.full_name, message.from_user.id)}, запустил бота')
-    name = message.from_user.username
+    name = message.from_user.full_name
     user_id = message.from_user.id
 
     add_user(name, user_id)
